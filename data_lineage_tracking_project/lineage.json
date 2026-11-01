@@ -1,0 +1,356 @@
+{
+  "generated_at": "2026-11-01T05:32:45+00:00",
+  "nodes": [
+    {
+      "id": "raw_orders",
+      "node_type": "dataset",
+      "kind": "source",
+      "origin": "orders.csv",
+      "rows": 300,
+      "columns": [
+        "order_id",
+        "customer_id",
+        "product_id",
+        "quantity"
+      ],
+      "fingerprint": "dad850d44eea",
+      "created_at": "2026-11-01T05:32:45+00:00"
+    },
+    {
+      "id": "raw_customers",
+      "node_type": "dataset",
+      "kind": "source",
+      "origin": "crm.customers",
+      "rows": 50,
+      "columns": [
+        "customer_id",
+        "name",
+        "region"
+      ],
+      "fingerprint": "d773d43d9a8d",
+      "created_at": "2026-11-01T05:32:45+00:00"
+    },
+    {
+      "id": "raw_products",
+      "node_type": "dataset",
+      "kind": "source",
+      "origin": "erp.products",
+      "rows": 10,
+      "columns": [
+        "product_id",
+        "category",
+        "unit_price"
+      ],
+      "fingerprint": "edac8d309f65",
+      "created_at": "2026-11-01T05:32:45+00:00"
+    },
+    {
+      "id": "clean_orders",
+      "node_type": "dataset",
+      "kind": "intermediate",
+      "origin": "clean_orders",
+      "rows": 201,
+      "columns": [
+        "order_id",
+        "customer_id",
+        "product_id",
+        "quantity"
+      ],
+      "fingerprint": "b9037b07dc97",
+      "created_at": "2026-11-01T05:32:45+00:00"
+    },
+    {
+      "id": "job:clean_orders",
+      "node_type": "job",
+      "label": "clean_orders",
+      "function": "clean_orders",
+      "parameters": {},
+      "columns_added": [],
+      "columns_dropped": [],
+      "columns_kept": [
+        "customer_id",
+        "order_id",
+        "product_id",
+        "quantity"
+      ],
+      "rows_in": [
+        300
+      ],
+      "rows_out": 201,
+      "executed_at": "2026-11-01T05:32:45+00:00"
+    },
+    {
+      "id": "enriched_orders",
+      "node_type": "dataset",
+      "kind": "intermediate",
+      "origin": "enrich_orders",
+      "rows": 188,
+      "columns": [
+        "order_id",
+        "customer_id",
+        "product_id",
+        "quantity",
+        "name",
+        "region",
+        "category",
+        "unit_price",
+        "revenue"
+      ],
+      "fingerprint": "17131cc4028f",
+      "created_at": "2026-11-01T05:32:45+00:00"
+    },
+    {
+      "id": "job:enrich_orders",
+      "node_type": "job",
+      "label": "enrich_orders",
+      "function": "enrich_orders",
+      "parameters": {},
+      "columns_added": [
+        "revenue"
+      ],
+      "columns_dropped": [],
+      "columns_kept": [
+        "category",
+        "customer_id",
+        "name",
+        "order_id",
+        "product_id",
+        "quantity",
+        "region",
+        "unit_price"
+      ],
+      "rows_in": [
+        201,
+        50,
+        10
+      ],
+      "rows_out": 188,
+      "executed_at": "2026-11-01T05:32:45+00:00"
+    },
+    {
+      "id": "report_revenue_region",
+      "node_type": "dataset",
+      "kind": "output",
+      "origin": "agg_region",
+      "rows": 4,
+      "columns": [
+        "region",
+        "revenue"
+      ],
+      "fingerprint": "2d9092ea7b73",
+      "created_at": "2026-11-01T05:32:45+00:00"
+    },
+    {
+      "id": "job:agg_region",
+      "node_type": "job",
+      "label": "agg_region",
+      "function": "revenue_by_region",
+      "parameters": {},
+      "columns_added": [],
+      "columns_dropped": [
+        "category",
+        "customer_id",
+        "name",
+        "order_id",
+        "product_id",
+        "quantity",
+        "unit_price"
+      ],
+      "columns_kept": [
+        "region",
+        "revenue"
+      ],
+      "rows_in": [
+        188
+      ],
+      "rows_out": 4,
+      "executed_at": "2026-11-01T05:32:45+00:00"
+    },
+    {
+      "id": "report_revenue_category",
+      "node_type": "dataset",
+      "kind": "output",
+      "origin": "agg_category",
+      "rows": 3,
+      "columns": [
+        "category",
+        "revenue"
+      ],
+      "fingerprint": "f99e7deab565",
+      "created_at": "2026-11-01T05:32:45+00:00"
+    },
+    {
+      "id": "job:agg_category",
+      "node_type": "job",
+      "label": "agg_category",
+      "function": "revenue_by_category",
+      "parameters": {},
+      "columns_added": [],
+      "columns_dropped": [
+        "customer_id",
+        "name",
+        "order_id",
+        "product_id",
+        "quantity",
+        "region",
+        "unit_price"
+      ],
+      "columns_kept": [
+        "category",
+        "revenue"
+      ],
+      "rows_in": [
+        188
+      ],
+      "rows_out": 3,
+      "executed_at": "2026-11-01T05:32:45+00:00"
+    },
+    {
+      "id": "report_top_customers",
+      "node_type": "dataset",
+      "kind": "output",
+      "origin": "rank_customers",
+      "rows": 5,
+      "columns": [
+        "customer_id",
+        "name",
+        "revenue"
+      ],
+      "fingerprint": "5cfea4c322e7",
+      "created_at": "2026-11-01T05:32:45+00:00"
+    },
+    {
+      "id": "job:rank_customers",
+      "node_type": "job",
+      "label": "rank_customers",
+      "function": "top_customers",
+      "parameters": {
+        "n": "5"
+      },
+      "columns_added": [],
+      "columns_dropped": [
+        "category",
+        "order_id",
+        "product_id",
+        "quantity",
+        "region",
+        "unit_price"
+      ],
+      "columns_kept": [
+        "customer_id",
+        "name",
+        "revenue"
+      ],
+      "rows_in": [
+        188
+      ],
+      "rows_out": 5,
+      "executed_at": "2026-11-01T05:32:45+00:00"
+    },
+    {
+      "id": "big_orders",
+      "node_type": "dataset",
+      "kind": "output",
+      "origin": "flag_big_orders",
+      "rows": 39,
+      "columns": [
+        "order_id",
+        "customer_id",
+        "product_id",
+        "quantity",
+        "name",
+        "region",
+        "category",
+        "unit_price",
+        "revenue"
+      ],
+      "fingerprint": "51fa8c5b7c8b",
+      "created_at": "2026-11-01T05:32:45+00:00"
+    },
+    {
+      "id": "job:flag_big_orders",
+      "node_type": "job",
+      "label": "flag_big_orders",
+      "function": "flag_big_orders",
+      "parameters": {
+        "threshold": "500"
+      },
+      "columns_added": [],
+      "columns_dropped": [],
+      "columns_kept": [
+        "category",
+        "customer_id",
+        "name",
+        "order_id",
+        "product_id",
+        "quantity",
+        "region",
+        "revenue",
+        "unit_price"
+      ],
+      "rows_in": [
+        188
+      ],
+      "rows_out": 39,
+      "executed_at": "2026-11-01T05:32:45+00:00"
+    }
+  ],
+  "edges": [
+    {
+      "from": "raw_orders",
+      "to": "job:clean_orders"
+    },
+    {
+      "from": "raw_customers",
+      "to": "job:enrich_orders"
+    },
+    {
+      "from": "raw_products",
+      "to": "job:enrich_orders"
+    },
+    {
+      "from": "clean_orders",
+      "to": "job:enrich_orders"
+    },
+    {
+      "from": "job:clean_orders",
+      "to": "clean_orders"
+    },
+    {
+      "from": "enriched_orders",
+      "to": "job:agg_region"
+    },
+    {
+      "from": "enriched_orders",
+      "to": "job:agg_category"
+    },
+    {
+      "from": "enriched_orders",
+      "to": "job:rank_customers"
+    },
+    {
+      "from": "enriched_orders",
+      "to": "job:flag_big_orders"
+    },
+    {
+      "from": "job:enrich_orders",
+      "to": "enriched_orders"
+    },
+    {
+      "from": "job:agg_region",
+      "to": "report_revenue_region"
+    },
+    {
+      "from": "job:agg_category",
+      "to": "report_revenue_category"
+    },
+    {
+      "from": "job:rank_customers",
+      "to": "report_top_customers"
+    },
+    {
+      "from": "job:flag_big_orders",
+      "to": "big_orders"
+    }
+  ]
+}

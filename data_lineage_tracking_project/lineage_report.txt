@@ -1,0 +1,89 @@
+DATA LINEAGE REPORT
+============================================================
+
+[SOURCE] raw_orders  (300 rows, 4 cols)
+  origin     : orders.csv
+  fingerprint: dad850d44eea
+  upstream   : -
+  downstream : big_orders, clean_orders, enriched_orders, report_revenue_category, report_revenue_region, report_top_customers
+
+[SOURCE] raw_customers  (50 rows, 3 cols)
+  origin     : crm.customers
+  fingerprint: d773d43d9a8d
+  upstream   : -
+  downstream : big_orders, enriched_orders, report_revenue_category, report_revenue_region, report_top_customers
+
+[SOURCE] raw_products  (10 rows, 3 cols)
+  origin     : erp.products
+  fingerprint: edac8d309f65
+  upstream   : -
+  downstream : big_orders, enriched_orders, report_revenue_category, report_revenue_region, report_top_customers
+
+[INTERMEDIATE] clean_orders  (201 rows, 4 cols)
+  origin     : clean_orders
+  fingerprint: b9037b07dc97
+  upstream   : raw_orders
+  downstream : big_orders, enriched_orders, report_revenue_category, report_revenue_region, report_top_customers
+
+[INTERMEDIATE] enriched_orders  (188 rows, 9 cols)
+  origin     : enrich_orders
+  fingerprint: 17131cc4028f
+  upstream   : clean_orders, raw_customers, raw_orders, raw_products
+  downstream : big_orders, report_revenue_category, report_revenue_region, report_top_customers
+
+[OUTPUT] report_revenue_region  (4 rows, 2 cols)
+  origin     : agg_region
+  fingerprint: 2d9092ea7b73
+  upstream   : clean_orders, enriched_orders, raw_customers, raw_orders, raw_products
+  downstream : -
+
+[OUTPUT] report_revenue_category  (3 rows, 2 cols)
+  origin     : agg_category
+  fingerprint: f99e7deab565
+  upstream   : clean_orders, enriched_orders, raw_customers, raw_orders, raw_products
+  downstream : -
+
+[OUTPUT] report_top_customers  (5 rows, 3 cols)
+  origin     : rank_customers
+  fingerprint: 5cfea4c322e7
+  upstream   : clean_orders, enriched_orders, raw_customers, raw_orders, raw_products
+  downstream : -
+
+[OUTPUT] big_orders  (39 rows, 9 cols)
+  origin     : flag_big_orders
+  fingerprint: 51fa8c5b7c8b
+  upstream   : clean_orders, enriched_orders, raw_customers, raw_orders, raw_products
+  downstream : -
+
+============================================================
+JOBS
+
+clean_orders  (clean_orders)
+  rows in -> out : [300] -> 201
+  columns added  : -
+  columns dropped: -
+
+enrich_orders  (enrich_orders)
+  rows in -> out : [201, 50, 10] -> 188
+  columns added  : ['revenue']
+  columns dropped: -
+
+agg_region  (revenue_by_region)
+  rows in -> out : [188] -> 4
+  columns added  : -
+  columns dropped: ['category', 'customer_id', 'name', 'order_id', 'product_id', 'quantity', 'unit_price']
+
+agg_category  (revenue_by_category)
+  rows in -> out : [188] -> 3
+  columns added  : -
+  columns dropped: ['customer_id', 'name', 'order_id', 'product_id', 'quantity', 'region', 'unit_price']
+
+rank_customers  (top_customers)
+  rows in -> out : [188] -> 5
+  columns added  : -
+  columns dropped: ['category', 'order_id', 'product_id', 'quantity', 'region', 'unit_price']
+
+flag_big_orders  (flag_big_orders)
+  rows in -> out : [188] -> 39
+  columns added  : -
+  columns dropped: -
